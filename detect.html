@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Detect Spam – Spam Detector</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav>
+  <a class="logo" href="/">📧 Spam Email Detector</a>
+  <ul>
+    <li><a href="/dashboard">Dashboard</a></li>
+    <li><a href="/detect" class="active-link">Detect Spam</a></li>
+    <li><a href="/history">History</a></li>
+    <li><a href="/logout" class="nav-logout">Logout</a></li>
+  </ul>
+</nav>
+
+<main>
+<div class="page">
+  <h1 class="page-title">Detect Spam</h1>
+  <p class="page-sub">Paste an email or SMS message below and click Analyse Email</p>
+
+  <div class="card" style="max-width:680px">
+    <div class="field">
+      <label>Email / Message Content</label>
+      <textarea id="msg" placeholder="Paste email content here...&#10;&#10;Example: Congratulations! You have won a free prize. Click here to claim now!"></textarea>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button id="analyseBtn" class="btn" onclick="analyse()" style="flex:1">
+        <span id="btnText">🔍 Analyse Email</span>
+        <span class="spinner" id="spinner"></span>
+      </button>
+      <button class="btn btn-gray" onclick="clearAll()">✕ Clear</button>
+    </div>
+    <div id="result"></div>
+  </div>
+</div>
+</main>
+
+<footer>© 2026 Spam Email Detection System &nbsp;|&nbsp; </footer>
+
+<script>
+async function analyse() {
+  const msg = document.getElementById("msg").value.trim();
+  if (!msg) { alert("Please enter an email message first."); return; }
+
+  const btn     = document.getElementById("analyseBtn");
+  const btnText = document.getElementById("btnText");
+  const spinner = document.getElementById("spinner");
+  btn.disabled  = true;
+  btnText.style.display = "none";
+  spinner.style.display = "inline-block";
+
+  try {
+    const res  = await fetch("/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: msg })
+    });
+    const data = await res.json();
+    if (data.error) { alert("Error: " + data.error); return; }
+
+    const isSpam  = data.prediction === "Spam";
+    const cls     = isSpam ? "is-spam" : "is-ham";
+    const icon    = isSpam ? "🚫" : "✅";
+    const sp      = data.spam_prob;
+    const hp      = data.ham_prob;
+
+    document.getElementById("result").innerHTML = `
+      <div class="result-card ${cls}">
+        <div class="verdict">${icon} ${data.prediction}</div>
+
+        <div class="bar-row">
+          <div class="bar-lbl"><span>Spam Probability</span><span>${sp}%</span></div>
+          <div class="bar-bg"><div class="bar-fill fill-spam" id="spBar" style="width:0%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-lbl"><span>Legitimate (Ham) Probability</span><span>${hp}%</span></div>
+          <div class="bar-bg"><div class="bar-fill fill-ham" id="hmBar" style="width:0%"></div></div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric"><div class="val">${sp}%</div><div class="lbl">Confidence</div></div>
+          <div class="metric"><div class="val">${isSpam ? "HIGH" : "LOW"}</div><div class="lbl">Spam Risk</div></div>
+        </div>
+
+        <p class="result-note">
+          ℹ️ Classified by Naive Bayes using TF-IDF + Dice &amp; Cosine Similarity.
+          This result has been saved to your <a href="/history">History</a>.
+        </p>
+      </div>`;
+
+    setTimeout(() => {
+      document.getElementById("spBar").style.width = sp + "%";
+      document.getElementById("hmBar").style.width = hp + "%";
+    }, 50);
+
+  } catch(e) {
+    alert("Could not connect to server. Make sure app.py is running.");
+  } finally {
+    btn.disabled = false;
+    btnText.style.display = "inline";
+    spinner.style.display = "none";
+  }
+}
+
+function clearAll() {
+  document.getElementById("msg").value = "";
+  document.getElementById("result").innerHTML = "";
+}
+
+// Ctrl+Enter shortcut
+document.getElementById("msg").addEventListener("keydown", e => {
+  if (e.ctrlKey && e.key === "Enter") analyse();
+});
+</script>
+</body>
+</html>

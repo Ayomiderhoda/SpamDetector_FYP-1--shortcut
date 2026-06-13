@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sign Up – Spam Detector</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav>
+  <a class="logo" href="/">📧 Spam Email Detector</a>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/login">Login</a></li>
+  </ul>
+</nav>
+
+<main>
+<div class="form-wrap card">
+  <h2>Create Account</h2>
+  <p class="sub">Register to start detecting spam emails</p>
+
+  {% if error %}
+  <div class="err-box">⚠️ {{ error }}</div>
+  {% endif %}
+
+  <form method="POST" action="/signup">
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" name="name" placeholder="Ayomide Jacob" required>
+    </div>
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" name="email" placeholder="you@example.com" required>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Create a password" required>
+    </div>
+    <div class="field">
+      <label>Confirm Password</label>
+      <input type="password" name="confirm" placeholder="Repeat password" required>
+    </div>
+    <button type="submit" class="btn btn-full" style="margin-top:6px">Create Account</button>
+  </form>
+
+  <p class="form-note">Already have an account? <a href="/login">Login</a></p>
+</div>
+</main>
+
+<footer>© 2026 Spam Email Detection System</footer>
+</body>
+</html>

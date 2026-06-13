@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>History – Spam Detector</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav>
+  <a class="logo" href="/">📧 Spam Email Detector</a>
+  <ul>
+    <li><a href="/dashboard">Dashboard</a></li>
+    <li><a href="/detect">Detect Spam</a></li>
+    <li><a href="/history" class="active-link">History</a></li>
+    <li><a href="/logout" class="nav-logout">Logout</a></li>
+  </ul>
+</nav>
+
+<main>
+<div class="page">
+  <h1 class="page-title">Prediction History</h1>
+  <p class="page-sub">All past detections for {{ name }} — newest first</p>
+
+  {% if records %}
+  <div class="card" style="margin-bottom:22px">
+    <h2>Spam Probability Trend</h2>
+    <div class="chart-box" style="height:240px">
+      <canvas id="probChart"></canvas>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date &amp; Time</th>
+          <th>Message Preview</th>
+          <th>Result</th>
+          <th>Spam Probability</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ r.date }}</td>
+          <td style="max-width:340px">{{ r.message }}</td>
+          <td>
+            <span class="badge {{ 'badge-spam' if r.result == 'Spam' else 'badge-ham' }}">
+              {{ r.result }}
+            </span>
+          </td>
+          <td>{{ r.prob }}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="empty card">
+    <div class="icon">📭</div>
+    <p>No predictions yet.</p>
+    <a href="/detect" class="btn" style="margin-top:16px;display:inline-block">Analyse your first email</a>
+  </div>
+  {% endif %}
+
+</div>
+</main>
+
+<footer>© 2026 Spam Email Detection System &nbsp;|&nbsp;</footer>
+
+{% if records %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+new Chart(document.getElementById('probChart'), {
+  type: 'line',
+  data: {
+    labels: {{ chart_labels | tojson }},
+    datasets: [{
+      label: 'Spam Probability (%)',
+      data: {{ chart_probs | tojson }},
+      borderColor: '#1a237e',
+      backgroundColor: 'rgba(26,35,126,0.08)',
+      fill: true,
+      tension: 0.3,
+      pointBackgroundColor: {{ chart_probs | tojson }}.map(p => p >= 50 ? '#c62828' : '#2e7d32'),
+      pointRadius: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
+      x: { grid: { display: false } }
+    },
+    plugins: { legend: { display: false } }
+  }
+});
+</script>
+{% endif %}
+</body>
+</html>
+

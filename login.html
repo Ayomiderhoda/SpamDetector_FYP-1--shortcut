@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Login – Spam Detector</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav>
+  <a class="logo" href="/">📧 Spam Email Detector</a>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/signup">Sign Up</a></li>
+  </ul>
+</nav>
+
+<main>
+<div class="form-wrap card">
+  <h2>Welcome Back</h2>
+  <p class="sub">Login to your spam detection dashboard</p>
+
+  <div class="demo-hint">
+    🔑 Demo account: <strong>demo@gmail.com</strong> &nbsp;/&nbsp; <strong>demo123</strong>
+  </div>
+
+  {% if error %}
+  <div class="err-box">⚠️ {{ error }}</div>
+  {% endif %}
+
+  <form method="POST" action="/login">
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" name="email" placeholder="you@example.com" required>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter password" required>
+    </div>
+    <button type="submit" class="btn btn-full" style="margin-top:6px">Login</button>
+  </form>
+
+  <p class="form-note">No account? <a href="/signup">Sign Up here</a></p>
+</div>
+</main>
+
+<footer>© 2026 Spam Email Detection System</footer>
+</body>
+</html>
