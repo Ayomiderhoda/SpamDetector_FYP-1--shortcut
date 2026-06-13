@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>History – Spam Detector</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav>
+  <a class="logo" href="/">📧 Spam Email Detector</a>
+  <ul>
+    <li><a href="/dashboard">Dashboard</a></li>
+    <li><a href="/detect">Detect Spam</a></li>
+    <li><a href="/history" class="active-link">History</a></li>
+    <li><a href="/logout" class="nav-logout">Logout</a></li>
+  </ul>
+</nav>
+
+<main>
+<div class="page">
+  <h1 class="page-title">Prediction History</h1>
+  <p class="page-sub">All past detections for {{ name }} — newest first</p>
+
+  {% if records %}
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date &amp; Time</th>
+          <th>Message Preview</th>
+          <th>Result</th>
+          <th>Spam Probability</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ r.date }}</td>
+          <td style="max-width:340px">{{ r.message }}</td>
+          <td>
+            <span class="badge {{ 'badge-spam' if r.result == 'Spam' else 'badge-ham' }}">
+              {{ r.result }}
+            </span>
+          </td>
+          <td>{{ r.prob }}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="empty card">
+    <div class="icon">📭</div>
+    <p>No predictions yet.</p>
+    <a href="/detect" class="btn" style="margin-top:16px;display:inline-block">Analyse your first email</a>
+  </div>
+  {% endif %}
+
+</div>
+</main>
+
+<footer>© 2026 Spam Email Detection System &nbsp;|&nbsp; Jacob Ayomide – AUL/CMP/23/077</footer>
+</body>
+</html>
